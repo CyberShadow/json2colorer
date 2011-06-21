@@ -27,11 +27,14 @@ void main(string[] args)
 	string[][string][string] results;
 	foreach (file; listdir(args[1], "*.json"))
 	{
-		auto symbols = jsonParse!(DSymbol[])(cast(string)read(file));
-		foreach (mod; symbols)
+		auto modules = jsonParse!(DSymbol[])(cast(string)read(file));
+		foreach (mod; modules)
 		{
-			if (mod.file.startsWith("internal") || mod.name.startsWith("std.typeinfo") || mod.name=="")
-				continue;
+			if (mod.file.startsWith("internal")) continue;
+			if (mod.name.startsWith("std.typeinfo")) continue;
+			if (mod.name=="") continue; // various internal modules
+			if (mod.name=="std.compiler") continue; // is meant to be static-imported
+
 			foreach (member; mod.members)
 				if (member.prot=="public" || member.prot=="export" || member.prot=="undefined")
 				{
@@ -64,15 +67,15 @@ void main(string[] args)
 			writefln("\t<keywords region='key.lib.%s'>", kind.replace(" ", "-"));
 			foreach (moduleName; modules.keys.sort)
 			{
-				auto symbols = modules[moduleName];
+				auto members = modules[moduleName];
 				bool[string] seen;
 				writefln("\t\t<!-- %s -->", moduleName);
-				foreach (symbol; symbols)
+				foreach (member; members)
 				{
-					if (symbol in seen)
+					if (member in seen)
 						continue;
-					seen[symbol] = true;
-					writefln("\t\t<word name='%s'/>", encodeEntities(symbol));
+					seen[member] = true;
+					writefln("\t\t<word name='%s'/>", encodeEntities(member));
 				}
 			}
 			writefln("\t</keywords>");
