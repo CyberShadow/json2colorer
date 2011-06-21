@@ -1,0 +1,65 @@
+From 865267c27ff780120ce0e475d3cb7d5acafabeb7 Mon Sep 17 00:00:00 2001
+From: Vladimir Panteleev <vladimir@thecybershadow.net>
+Date: Tue, 21 Jun 2011 04:01:35 +0300
+Subject: [PATCH] Include protection in json output
+
+---
+ src/json.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+diff --git a/src/json.c b/src/json.c
+index 1adf370..e1cf5dd 100644
+--- a/src/json.c
++++ b/src/json.c
+@@ -43,6 +43,8 @@ const char Pline[] = "line";
+ const char Ptype[] = "type";
+ const char Pcomment[] = "comment";
+ const char Pmembers[] = "members";
++const char Pprot[] = "prot";
++const char* Pprotnames[] = {"undefined", "none", "private", "package", "protected", "public", "export"};
+ 
+ void JsonRemoveComma(OutBuffer *buf);
+ 
+@@ -259,6 +261,7 @@ void Declaration::toJsonBuffer(OutBuffer *buf)
+ 
+     JsonProperty(buf, Pname, toChars());
+     JsonProperty(buf, Pkind, kind());
++    JsonProperty(buf, Pprot, Pprotnames[prot()]);
+     if (type)
+         JsonProperty(buf, Ptype, type->toChars());
+ 
+@@ -285,6 +288,7 @@ void AggregateDeclaration::toJsonBuffer(OutBuffer *buf)
+ 
+     JsonProperty(buf, Pname, toChars());
+     JsonProperty(buf, Pkind, kind());
++    JsonProperty(buf, Pprot, Pprotnames[prot()]);
+     if (comment)
+         JsonProperty(buf, Pcomment, (const char *)comment);
+     if (loc.linnum)
+@@ -344,6 +348,7 @@ void TemplateDeclaration::toJsonBuffer(OutBuffer *buf)
+ 
+     JsonProperty(buf, Pname, toChars());
+     JsonProperty(buf, Pkind, kind());
++    JsonProperty(buf, Pprot, Pprotnames[prot()]);
+     if (comment)
+         JsonProperty(buf, Pcomment, (const char *)comment);
+ 
+@@ -389,6 +394,7 @@ void EnumDeclaration::toJsonBuffer(OutBuffer *buf)
+ 
+     JsonProperty(buf, Pname, toChars());
+     JsonProperty(buf, Pkind, kind());
++    JsonProperty(buf, Pprot, Pprotnames[prot()]);
+     if (comment)
+         JsonProperty(buf, Pcomment, (const char *)comment);
+ 
+@@ -426,6 +432,7 @@ void EnumMember::toJsonBuffer(OutBuffer *buf)
+ 
+     JsonProperty(buf, Pname, toChars());
+     JsonProperty(buf, Pkind, kind());
++    JsonProperty(buf, Pprot, Pprotnames[prot()]);
+ 
+     if (comment)
+         JsonProperty(buf, Pcomment, (const char *)comment);
+-- 
+1.7.5.3775.ga8770a
+

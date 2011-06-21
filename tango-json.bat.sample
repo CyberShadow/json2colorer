@@ -1,0 +1,3 @@
+cd Wherever\You\Unpacked\Tango
+set PATH=C:\Wherever\You\Have\find,grep,etc;%PATH%
+ufind tango -name *.d | grep -vFe compiler\gdc -e compiler\ldc -e core\vendor\ldc -e object_.d -e stdc\posix | xargs dmd -o- -X
