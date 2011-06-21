@@ -31,6 +31,7 @@ void main(string[] args)
 		foreach (mod; modules)
 		{
 			if (mod.file.startsWith("internal")) continue;
+			if (mod.name.startsWith("rt.")) continue;
 			if (mod.name.startsWith("std.typeinfo")) continue;
 			if (mod.name=="") continue; // various internal modules
 			if (mod.name=="std.compiler") continue; // is meant to be static-imported
