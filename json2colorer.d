@@ -1,12 +1,13 @@
 module json2colorer;
 
-import Team15.Http.Json;
-import Team15.LiteXML;
-import Team15.Utils;
-
+import std.array;
 import std.file;
 import std.string;
 import std.stdio;
+
+import ae.utils.json;
+import ae.utils.text;
+import ae.utils.xml;
 
 struct DSymbol
 {
@@ -14,20 +15,36 @@ struct DSymbol
 	string kind;
 	string file;
 	int line;
+	int endline;
 	string type;
+	string deco, baseDeco, defaultDeco;
+	string originalType;
 	string comment;
 	DSymbol[] members;
-	string prot;
+	DSymbol[] parameters;
+	string protection;
 	string base;
+	string[] storageClass;
 	string[] interfaces;
+	string[] overrides;
+	@JSONName("alias") string alias_;
+	string defaultAlias;
+	string[] selective;
+	string[string] renamed;
+	@JSONName("in" ) DSymbol* in_ ;
+	@JSONName("out") DSymbol* out_;
+	@JSONName("default") string default_;
+	string defaultValue, specValue, init;
+	int offset;
+	@JSONName("align") int align_;
 }
 
 void main(string[] args)
 {
 	string[][string][string] results;
-	foreach (file; listdir(args[1], "*.json"))
+	foreach (de; dirEntries(args[1], "*.json", SpanMode.shallow))
 	{
-		auto modules = jsonParse!(DSymbol[])(cast(string)read(file));
+		auto modules = jsonParse!(DSymbol[])(readText(de.name));
 		foreach (mod; modules)
 		{
 			if (mod.file.startsWith("internal")) continue;
@@ -36,12 +53,15 @@ void main(string[] args)
 			if (mod.name=="") continue; // various internal modules
 			if (mod.name=="std.compiler") continue; // is meant to be static-imported
 
+
 			foreach (member; mod.members)
-				if (member.prot=="public" || member.prot=="export" || member.prot=="undefined")
+				if (member.protection=="public" || member.protection=="export" || member.protection=="")
 				{
 					string name = member.name;
+					if (name.startsWith("__unittest"))
+						continue;
 					if (name.contains("("))
-						name = name[0..name.find("(")];
+						name = name[0..name.indexOf("(")];
 					results[member.kind][mod.name] ~= name;
 				}
 		}
